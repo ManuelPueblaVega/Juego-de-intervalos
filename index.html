@@ -1,0 +1,178 @@
+<html><head><base href="." target="_blank">
+<meta charset="UTF-8">
+<title>Intervalos Musicales - Juego de Entrenamiento Auditivo</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        color: white;
+    }
+
+    .container {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(0,0,0,0.7);
+        border-radius: 15px;
+        margin: 2rem;
+        max-width: 600px;
+    }
+
+    .piano {
+        display: flex;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+
+    .key {
+        width: 40px;
+        height: 150px;
+        background: white;
+        border: 1px solid #000;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .key.black {
+        width: 30px;
+        height: 100px;
+        background: #000;
+        margin: 0 -15px;
+        z-index: 2;
+    }
+
+    .key:hover {
+        background: #ddd;
+    }
+
+    .key.black:hover {
+        background: #333;
+    }
+
+    .buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 2rem 0;
+    }
+
+    button {
+        padding: 1rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 5px;
+        background: #4CAF50;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+    }
+
+    .score {
+        font-size: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .feedback {
+        font-size: 1.2rem;
+        margin: 1rem 0;
+        min-height: 2rem;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Entrenador de Intervalos Musicales</h1>
+        <div class="score">Puntuación: <span id="score">0</span></div>
+        <div class="piano">
+            <!-- Piano visual de referencia -->
+            <div class="key"></div>
+            <div class="key black"></div>
+            <div class="key"></div>
+            <div class="key black"></div>
+            <div class="key"></div>
+            <div class="key"></div>
+            <div class="key black"></div>
+            <div class="key"></div>
+            <div class="key black"></div>
+            <div class="key"></div>
+            <div class="key black"></div>
+            <div class="key"></div>
+        </div>
+        <button id="playInterval">Reproducir Intervalo</button>
+        <div class="buttons">
+            <button onclick="checkAnswer('segunda')">Segunda</button>
+            <button onclick="checkAnswer('tercera')">Tercera</button>
+            <button onclick="checkAnswer('cuarta')">Cuarta</button>
+            <button onclick="checkAnswer('quinta')">Quinta</button>
+            <button onclick="checkAnswer('sexta')">Sexta</button>
+            <button onclick="checkAnswer('septima')">Séptima</button>
+            <button onclick="checkAnswer('octava')">Octava</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<script>
+let currentInterval = '';
+let score = 0;
+const synth = new Tone.Synth().toDestination();
+
+const intervals = {
+    'segunda': 2,
+    'tercera': 4,
+    'cuarta': 5,
+    'quinta': 7,
+    'sexta': 9,
+    'septima': 11,
+    'octava': 12
+};
+
+const baseNote = 'C4';
+
+function playInterval() {
+    const intervalTypes = Object.keys(intervals);
+    currentInterval = intervalTypes[Math.floor(Math.random() * intervalTypes.length)];
+    
+    const semitones = intervals[currentInterval];
+    const secondNote = Tone.Frequency(baseNote).transpose(semitones).toNote();
+
+    // Reproducir las notas secuencialmente
+    Tone.start();
+    synth.triggerAttackRelease(baseNote, '0.5');
+    setTimeout(() => {
+        synth.triggerAttackRelease(secondNote, '0.5');
+    }, 700);
+}
+
+function checkAnswer(answer) {
+    const feedback = document.getElementById('feedback');
+    if (answer === currentInterval) {
+        score += 10;
+        feedback.textContent = '¡Correcto! +10 puntos';
+        feedback.style.color = '#4CAF50';
+    } else {
+        score = Math.max(0, score - 5);
+        feedback.textContent = `Incorrecto. Era un intervalo de ${currentInterval}. -5 puntos`;
+        feedback.style.color = '#f44336';
+    }
+    document.getElementById('score').textContent = score;
+    
+    // Generar nuevo intervalo después de un breve delay
+    setTimeout(playInterval, 1500);
+}
+
+document.getElementById('playInterval').addEventListener('click', playInterval);
+
+// Iniciar el juego con el primer intervalo
+playInterval();
+</script>
+</body>
+</html>
